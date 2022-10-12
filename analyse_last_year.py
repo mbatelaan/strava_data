@@ -122,6 +122,21 @@ def plot_hr_hist(heartrate_data):
     plt.savefig(f"plots/last_year_hr_hist_wide_{nowstring}.pdf")
     plt.close()
 
+    fig = plt.figure(figsize=(7, 5))
+    histogram = plt.hist(
+        all_hr, bins=bins_zones, density=False, alpha=0.5, label="runs"
+    )
+    max_bin_value = np.max(histogram[0])
+    ticks = np.arange(0, max_bin_value + 60 * 60 * 5, 60 * 60 * 5)
+    plt.xticks(histogram[1])
+    plt.yticks(ticks, [f"{i/(60*60):.0f}" for i in ticks])
+    plt.legend()
+    plt.xlabel("heart rate [bpm]")
+    plt.ylabel("hours")
+    plt.grid(True, alpha=0.3)
+    plt.savefig(f"plots/last_year_hr_hist_zones_{nowstring}.pdf")
+    plt.close()
+
     return
 
 
@@ -164,7 +179,7 @@ def plot_hr_hist_split(heartrate_data, activities_data):
         all_hr_rides, bins=bins2, density=False, alpha=0.5, label="rides"
     )
     max_bin_value = np.max(np.append(histogram1[0], histogram2[0]))
-    ticks = np.arange(0, max_bin_value + 60 * 60, 60 * 60)
+    ticks = np.arange(0, max_bin_value + 60 * 60 * 5, 60 * 60 * 5)
     plt.xticks(histogram1[1])
     plt.yticks(ticks, [f"{i/(60*60):.0f}" for i in ticks])
     plt.legend()
