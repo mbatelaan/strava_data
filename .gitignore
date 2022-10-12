@@ -1,0 +1,7 @@
+*.pdf
+*.pickle
+*~
+__pycache__
+client.secret
+plots/*
+data/*
