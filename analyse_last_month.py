@@ -223,23 +223,23 @@ def plot_hr_hist_split(heartrate_data, activities_data, nowstring):
 
 
 def main():
-    """Get the activities of the last month from strava and save the heart rate data to a file"""
+    """Read the last month's activities from a pickle file and make plots of the data"""
 
     plt.rc("text", usetex=True)
     rcParams.update({"figure.autolayout": True})
 
     nowstring = datetime.datetime(2022, 10, 13).strftime("%Y_%m_%d")
     print(f"{nowstring=}")
-
     with open(f"data/heartrate_data_last_month_{nowstring}.pickle", "rb") as f:
         heartrate_data = pickle.load(f)
     with open(f"data/activities_data_last_month_{nowstring}.pickle", "rb") as f:
         activities_data = pickle.load(f)
 
+    # Plot the average and max heartrate against dates with activity length as marker size.
     plot_summary_stats(activities_data, nowstring)
-
+    # Plot a histogram of all the heartrate data
     plot_hr_hist(heartrate_data, nowstring)
-
+    # Plot a histogram of all the heartrate data split into runs and rides
     plot_hr_hist_split(heartrate_data, activities_data, nowstring)
 
     return

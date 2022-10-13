@@ -108,7 +108,7 @@ def save_last_year_data(activ_list, client):
     nowtime = mpl.dates.date2num(datetime.datetime(*time.localtime()[:6]))
     lastyear = nowtime - 365
 
-    for i, activity in enumerate(activ_list[:98]):
+    for i, activity in enumerate(activ_list):
         activity_ = activity.to_dict()
         print(activity_["start_date"])
         # Get the date of the activity as a float, then check if it is within the last month:
