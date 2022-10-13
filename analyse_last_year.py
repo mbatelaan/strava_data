@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # https://medium.com/analytics-vidhya/accessing-user-data-via-the-strava-api-using-stravalib-d5bee7fdde17
 
 
-def plot_summary_stats(activities_data):
+def plot_summary_stats(activities_data, nowstring):
     """Analyse all activities and plot the heart rate summary stats against time."""
     # Only keep activities with heartrate
     has_hr = np.where(np.array([i["has_heartrate"] for i in activities_data]))
@@ -29,12 +29,12 @@ def plot_summary_stats(activities_data):
 
     # Split runs and rides
     activity_type = np.array([ac["type"] for ac in activities_data])
+    print(activity_type)
+    print(len(activity_type))
     runs = np.where(activity_type == "Run")
     rides = np.where(activity_type == "Ride")
 
     marker_sizes = np.array([float(i) for i in moving_time]) / np.max(moving_time) * 150
-
-    nowstring = datetime.datetime.now().strftime("%Y_%m_%d")
 
     # Plot the average heart rate against date for activities
     fig = plt.figure(figsize=(7, 5))
@@ -87,10 +87,8 @@ def plot_summary_stats(activities_data):
     plt.close()
 
 
-def plot_hr_hist(heartrate_data):
+def plot_hr_hist(heartrate_data, nowstring):
     """Plot a histogram of all of the heart rate data of the past year combined"""
-
-    nowstring = datetime.datetime.now().strftime("%Y_%m_%d")
 
     all_hr = np.array([item for hr in heartrate_data for item in hr])
 
@@ -101,16 +99,24 @@ def plot_hr_hist(heartrate_data):
     bins_zones = np.array([100, 120, 142, 160, 178, 196])
 
     fig = plt.figure(figsize=(7, 5))
-    plt.hist(all_hr, bins=bins, density=True, alpha=0.5, label="all activities")
+    histogram = plt.hist(
+        all_hr, bins=bins, density=False, alpha=0.5, label="all activities"
+    )
+    max_bin_value = np.max(histogram[0])
+    ticks = np.arange(0, max_bin_value + 60 * 60, 60 * 60)
+    plt.yticks(ticks, [f"{i/(60*60):.0f}" for i in ticks])
     plt.legend()
     plt.xlabel("heart rate [bpm]")
+    plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
     plt.savefig(f"plots/last_year_hr_hist_{nowstring}.pdf")
     plt.close()
     # plt.show()
 
     fig = plt.figure(figsize=(7, 5))
-    histogram = plt.hist(all_hr, bins=bins2, density=False, alpha=0.5, label="runs")
+    histogram = plt.hist(
+        all_hr, bins=bins2, density=False, alpha=0.5, label="all activities"
+    )
     max_bin_value = np.max(histogram[0])
     ticks = np.arange(0, max_bin_value + 60 * 60 * 5, 60 * 60 * 5)
     plt.xticks(histogram[1])
@@ -124,7 +130,7 @@ def plot_hr_hist(heartrate_data):
 
     fig = plt.figure(figsize=(7, 5))
     histogram = plt.hist(
-        all_hr, bins=bins_zones, density=False, alpha=0.5, label="runs"
+        all_hr, bins=bins_zones, density=False, alpha=0.5, label="all activities"
     )
     max_bin_value = np.max(histogram[0])
     ticks = np.arange(0, max_bin_value + 60 * 60 * 5, 60 * 60 * 5)
@@ -140,7 +146,7 @@ def plot_hr_hist(heartrate_data):
     return
 
 
-def plot_hr_hist_split(heartrate_data, activities_data):
+def plot_hr_hist_split(heartrate_data, activities_data, nowstring):
     """Plot a histogram of all of the heart rate data of the past year split into Runs and Rides"""
 
     has_hr = np.where(np.array([i["has_heartrate"] for i in activities_data]))
@@ -160,13 +166,20 @@ def plot_hr_hist_split(heartrate_data, activities_data):
     bins2 = np.arange(75, 205, 10)
     bins_zones = np.array([100, 120, 142, 160, 178, 196])
 
-    nowstring = datetime.datetime.now().strftime("%Y_%m_%d")
-
     fig = plt.figure(figsize=(7, 5))
-    plt.hist(all_hr_runs, bins=bins, density=True, alpha=0.5, label="runs")
-    plt.hist(all_hr_rides, bins=bins, density=True, alpha=0.5, label="rides")
+    histogram1 = plt.hist(
+        all_hr_runs, bins=bins, density=False, alpha=0.5, label="runs"
+    )
+    histogram2 = plt.hist(
+        all_hr_rides, bins=bins, density=False, alpha=0.5, label="rides"
+    )
+    max_bin_value = np.max(np.append(histogram1[0], histogram2[0]))
+    ticks = np.arange(0, max_bin_value + 60 * 60, 60 * 60)
+    # plt.xticks(histogram1[1])
+    plt.yticks(ticks, [f"{i/(60*60):.1f}" for i in ticks])
     plt.legend()
     plt.xlabel("heart rate [bpm]")
+    plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
     plt.savefig(f"plots/last_year_hr_hist_split_{nowstring}.pdf")
     plt.close()
@@ -224,11 +237,11 @@ def main():
     with open(f"data/activities_data_last_year_{nowstring}.pickle", "rb") as f:
         activities_data = pickle.load(f)
 
-    plot_summary_stats(activities_data)
+    plot_summary_stats(activities_data, nowstring)
 
-    plot_hr_hist(heartrate_data)
+    plot_hr_hist(heartrate_data, nowstring)
 
-    plot_hr_hist_split(heartrate_data, activities_data)
+    plot_hr_hist_split(heartrate_data, activities_data, nowstring)
 
     return
 

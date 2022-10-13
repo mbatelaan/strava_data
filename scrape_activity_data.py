@@ -101,16 +101,9 @@ def save_last_month_data(activ_list, client):
 
 
 def save_last_year_data(activ_list, client):
-    types = [
-        "time",
-        "latlng",
-        "altitude",
-        "heartrate",
-        "temp",
-    ]
+    """Give a list of activities, save all the ones from the last year to a pickle file"""
 
     activities_data = []
-    heartrate_data = []
 
     nowtime = mpl.dates.date2num(datetime.datetime(*time.localtime()[:6]))
     lastyear = nowtime - 365
@@ -124,23 +117,19 @@ def save_last_year_data(activ_list, client):
         print(f"{lastyear=}")
         if activity_date >= lastyear:
             activities_data.append(activity_)
-            if activity_["has_heartrate"]:
-                activity_stream = client.get_activity_streams(
-                    activity_["id"], types=types, resolution="high"
-                )
-                heartrate_data.append(np.array(activity_stream["heartrate"].data))
         else:
             break
     nowstring = datetime.datetime.now().strftime("%Y_%m_%d")
 
-    with open(f"data/heartrate_data_last_year_{nowstring}.pickle", "wb") as f:
-        pickle.dump(heartrate_data, f)
     with open(f"data/activities_data_last_year_{nowstring}.pickle", "wb") as f:
         pickle.dump(activities_data, f)
     return
 
 
 def extend_save_last_year_data(activ_list, client):
+    """Give a list of activities, save all the ones from the last year and request their heart rate data stream to save that as well
+    Taking into account the rate-limiting by strava, this function will do 79 activities at a time, then wait 15 minutes and then continue again.
+    """
     types = [
         "time",
         "latlng",
@@ -206,7 +195,9 @@ def main():
 
     # save_last_month_data(activ_list, client)
 
-    extend_save_last_year_data(activ_list, client)
+    save_last_year_data(activ_list, client)
+
+    # extend_save_last_year_data(activ_list, client)
     return
 
 
