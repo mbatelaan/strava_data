@@ -100,6 +100,53 @@ def save_last_month_data(activ_list, client):
     return
 
 
+def save_last_months_data(activ_list, client, month_number):
+    types = [
+        "time",
+        "latlng",
+        "altitude",
+        "heartrate",
+        "temp",
+    ]
+
+    activities_data = []
+    heartrate_data = []
+
+    nowtime = mpl.dates.date2num(datetime.datetime(*time.localtime()[:6]))
+    lastmonth = nowtime - 30 * month_number
+    lastmonth_ = mpl.dates.num2date(lastmonth)
+    print(nowtime)
+    print(lastmonth_)
+
+    for i, activity in enumerate(activ_list):
+        activity_ = activity.to_dict()
+        print(activity_["start_date"])
+        # Get the date of the activity as a float, then check if it is within the last month:
+        activity_date = mpl.dates.datestr2num(activity_["start_date"])
+        print(f"{activity_date=}")
+        print(f"{lastmonth=}")
+        if activity_date >= lastmonth:
+            activities_data.append(activity_)
+            if activity_["has_heartrate"]:
+                activity_stream = client.get_activity_streams(
+                    activity_["id"], types=types, resolution="high"
+                )
+                heartrate_data.append(np.array(activity_stream["heartrate"].data))
+        else:
+            break
+    nowstring = datetime.datetime.now().strftime("%Y_%m_%d")
+
+    with open(
+        f"data/heartrate_data_last_{month_number}months_{nowstring}.pickle", "wb"
+    ) as f:
+        pickle.dump(heartrate_data, f)
+    with open(
+        f"data/activities_data_last_{month_number}months_{nowstring}.pickle", "wb"
+    ) as f:
+        pickle.dump(activities_data, f)
+    return
+
+
 def save_last_year_data(activ_list, client):
     """Give a list of activities, save all the ones from the last year to a pickle file"""
 
@@ -195,7 +242,9 @@ def main():
 
     # save_last_month_data(activ_list, client)
 
-    save_last_year_data(activ_list, client)
+    save_last_months_data(activ_list, client, 2)
+
+    # save_last_year_data(activ_list, client)
 
     # extend_save_last_year_data(activ_list, client)
     return

@@ -32,6 +32,7 @@ def plot_summary_stats(activities_data, nowstring):
     activity_type = np.array([ac["type"] for ac in activities_data])
     runs = np.where(activity_type == "Run")
     rides = np.where(activity_type == "Ride")
+    other = np.where((activity_type != "Ride") & (activity_type != "Run"))
 
     marker_sizes = np.array([float(i) for i in moving_time]) / np.max(moving_time) * 150
     legend_sizes = (
@@ -49,18 +50,23 @@ def plot_summary_stats(activities_data, nowstring):
     points2 = ax.scatter(
         mpl_dates[rides], hr_avgs[rides], c="b", label="rides", s=marker_sizes[rides]
     )
+    points3 = ax.scatter(
+        mpl_dates[other], hr_avgs[other], c="g", label="other", s=marker_sizes[other]
+    )
     ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m-%d"))
     ax.set_ylabel("average heart rate [bpm]")
     ax.set_xlabel("Date")
     ax.grid(True, alpha=0.3)
     # Add a legend for the marker sizes
     labels = [f"{s:.0f}h" for s in legend_sizes * np.max(moving_time) / (150 * 60 * 60)]
-    labels = labels + ["runs", "rides"]
+    labels = labels + ["runs", "rides", "other"]
     legend_points = [ax.scatter([], [], s=size_, c="gray") for size_ in legend_sizes]
-    legend_points = legend_points + [points1, points2]
+    legend_points = legend_points + [points1, points2, points3]
     plt.legend(legend_points, labels, scatterpoints=1, loc=3)
-    plt.savefig(f"plots/last_month_avg_hr_{nowstring}.pdf")
-    plt.savefig(f"plots/last_month_avg_hr_{nowstring}.png")
+    # plt.savefig(f"plots/last_month_avg_hr_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_avg_hr_{nowstring}.png")
+    plt.savefig(f"plots/last_month_avg_hr.pdf")
+    plt.savefig(f"plots/last_month_avg_hr.png")
     plt.close()
 
     # Plot the average heart rate against date for activities
@@ -82,7 +88,8 @@ def plot_summary_stats(activities_data, nowstring):
     legend_points = [ax.scatter([], [], s=size_, c="gray") for size_ in legend_sizes]
     legend_points = legend_points + [points1, points2]
     plt.legend(legend_points, labels, scatterpoints=1, loc=3)
-    plt.savefig(f"plots/last_month_max_hr_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_max_hr_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_max_hr.pdf")
     plt.close()
 
 
@@ -108,7 +115,8 @@ def plot_hr_hist(heartrate_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_hr_hist.pdf")
     plt.close()
     # plt.show()
 
@@ -124,7 +132,8 @@ def plot_hr_hist(heartrate_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_wide_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_wide_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_hr_hist_wide.pdf")
     plt.close()
 
     fig = plt.figure(figsize=(7, 5))
@@ -139,7 +148,8 @@ def plot_hr_hist(heartrate_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_zones_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_zones_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_hr_hist_zones.pdf")
     plt.close()
 
     return
@@ -179,8 +189,10 @@ def plot_hr_hist_split(heartrate_data, activities_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_split_{nowstring}.pdf")
-    plt.savefig(f"plots/last_month_hr_hist_split_{nowstring}.png")
+    # plt.savefig(f"plots/last_month_hr_hist_split_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_split_{nowstring}.png")
+    plt.savefig(f"plots/last_month_hr_hist_split.pdf")
+    plt.savefig(f"plots/last_month_hr_hist_split.png")
     plt.close()
 
     fig = plt.figure(figsize=(7, 5))
@@ -198,7 +210,8 @@ def plot_hr_hist_split(heartrate_data, activities_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_split_wide_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_split_wide_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_hr_hist_split_wide.pdf")
     plt.close()
 
     fig = plt.figure(figsize=(7, 5))
@@ -216,7 +229,8 @@ def plot_hr_hist_split(heartrate_data, activities_data, nowstring):
     plt.xlabel("heart rate [bpm]")
     plt.ylabel("hours")
     plt.grid(True, alpha=0.3)
-    plt.savefig(f"plots/last_month_hr_hist_split_zones_{nowstring}.pdf")
+    # plt.savefig(f"plots/last_month_hr_hist_split_zones_{nowstring}.pdf")
+    plt.savefig(f"plots/last_month_hr_hist_split_zones.pdf")
     plt.close()
 
     return
@@ -228,11 +242,12 @@ def main():
     plt.rc("text", usetex=True)
     rcParams.update({"figure.autolayout": True})
 
-    nowstring = datetime.datetime(2022, 10, 13).strftime("%Y_%m_%d")
+    nowstring = datetime.datetime(2023, 2, 22).strftime("%Y_%m_%d")
     print(f"{nowstring=}")
-    with open(f"data/heartrate_data_last_month_{nowstring}.pickle", "rb") as f:
+
+    with open(f"data/heartrate_data_last_2months_{nowstring}.pickle", "rb") as f:
         heartrate_data = pickle.load(f)
-    with open(f"data/activities_data_last_month_{nowstring}.pickle", "rb") as f:
+    with open(f"data/activities_data_last_2months_{nowstring}.pickle", "rb") as f:
         activities_data = pickle.load(f)
 
     # Plot the average and max heartrate against dates with activity length as marker size.
